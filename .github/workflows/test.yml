@@ -68,6 +68,13 @@ jobs:
           name: jars
           path: "**/build/**/*.jar"
 
+      - name: Upload test report
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+        with:
+          name: unit-test-reports
+          path: "**/build/reports/tests/**/*"
+
       - name: Upload test coverage report
         uses: ./mobile-android-pipelines/actions/upload-coverage-reports
         with:
