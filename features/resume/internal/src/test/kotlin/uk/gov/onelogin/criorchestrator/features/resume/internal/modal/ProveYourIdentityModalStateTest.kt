@@ -26,6 +26,7 @@ class ProveYourIdentityModalStateTest {
                 awaitItem().also { (_, allowedToShow) ->
                     assertEquals(allowedToShow, true)
                 }
+                cancel()
             }
         }
 
@@ -42,6 +43,7 @@ class ProveYourIdentityModalStateTest {
                 awaitItem().also { (_, allowedToShow) ->
                     assertEquals(allowedToShow, false)
                 }
+                cancel()
             }
         }
 
@@ -62,6 +64,7 @@ class ProveYourIdentityModalStateTest {
                 awaitItem().also { (_, allowedToShow) ->
                     assertEquals(allowedToShow, false)
                 }
+                cancel()
             }
         }
 
@@ -81,6 +84,7 @@ class ProveYourIdentityModalStateTest {
                 awaitItem().also { (_, allowedToShow) ->
                     assertEquals(allowedToShow, true)
                 }
+                cancel()
             }
         }
 }

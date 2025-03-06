@@ -1,6 +1,8 @@
 package uk.gov.onelogin.criorchestrator.features.resume.internal.root
 
 import app.cash.turbine.test
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -39,9 +41,11 @@ class ProveYourIdentityViewModelTest {
     @Test
     fun `initial state`() =
         runTest {
-            viewModel.state.test {
-                assertEquals(INITIAL_STATE, awaitItem())
-            }
+            viewModel.state
+                .test {
+                    assertEquals(INITIAL_STATE, awaitItem())
+                    cancel()
+                }
         }
 
     @Test
