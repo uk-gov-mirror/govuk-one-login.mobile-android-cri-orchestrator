@@ -7,16 +7,16 @@ dependencies {
 
     implementation(libs.kotlinx.coroutines)
     implementation(libs.uk.gov.logging.api)
-    implementation(project(":features:config:public-api"))
-    implementation(project(":libraries:di"))
-    testImplementation(project(":features:config:public-api"))
+    implementation(projects.features.config.publicApi)
+    implementation(projects.libraries.di)
+    testImplementation(projects.features.config.publicApi)
 
     testFixturesImplementation(libs.uk.gov.logging.testdouble)
-    testFixturesImplementation(project(":features:config:public-api"))
-    testFixturesImplementation(testFixtures(project(":features:config:public-api")))
+    testFixturesImplementation(projects.features.config.publicApi)
+    testFixturesImplementation(testFixtures(projects.features.config.publicApi))
 
     testImplementation(libs.uk.gov.logging.testdouble)
-    testImplementation(testFixtures(project(":features:config:public-api")))
+    testImplementation(testFixtures(projects.features.config.publicApi))
 }
 
 mavenPublishingConfig {

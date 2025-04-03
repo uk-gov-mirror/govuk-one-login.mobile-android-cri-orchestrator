@@ -9,13 +9,13 @@ dependencies {
     api(libs.uk.gov.logging.api)
 
     implementation(libs.uk.gov.networking)
-    implementation(project(":features:resume:internal-api"))
-    implementation(project(":features:select-doc:internal-api"))
-    implementation(project(":libraries:analytics"))
-    implementation(project(":libraries:di"))
-    implementation(project(":libraries:navigation"))
+    implementation(projects.features.resume.internalApi)
+    implementation(projects.features.selectDoc.internalApi)
+    implementation(projects.libraries.analytics)
+    implementation(projects.libraries.di)
+    implementation(projects.libraries.navigation)
 
-    testImplementation(testFixtures(project(":libraries:analytics")))
+    testImplementation(testFixtures(projects.libraries.analytics))
 
     testImplementation(libs.uk.gov.logging.testdouble)
 }

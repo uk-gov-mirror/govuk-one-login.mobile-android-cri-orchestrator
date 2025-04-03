@@ -7,13 +7,13 @@ dependencies {
     api(libs.androidx.lifecycle.viewmodel.compose)
 
     implementation(libs.uk.gov.networking)
-    implementation(project(":features:dev:internal-api"))
-    implementation(project(":features:dev:public-api"))
-    implementation(project(":features:config:public-api"))
-    implementation(project(":libraries:di"))
+    implementation(projects.features.dev.internalApi)
+    implementation(projects.features.dev.publicApi)
+    implementation(projects.features.config.publicApi)
+    implementation(projects.libraries.di)
 
-    testImplementation(testFixtures(project(":features:config:internal")))
-    testImplementation(testFixtures(project(":features:config:public-api")))
+    testImplementation(testFixtures(projects.features.config.internal))
+    testImplementation(testFixtures(projects.features.config.publicApi))
 }
 
 mavenPublishingConfig {

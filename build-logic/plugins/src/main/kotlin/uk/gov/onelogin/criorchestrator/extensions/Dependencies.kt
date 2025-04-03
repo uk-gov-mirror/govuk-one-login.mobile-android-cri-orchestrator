@@ -80,7 +80,7 @@ internal fun DependencyHandlerScope.testDependencies(libs: LibrariesForLibs) {
     testImplementation(libs.org.junit.jupiter.engine)
     testImplementation(libs.org.mockito.kotlin)
     testImplementation(platform(libs.org.junit.bom))
-    testImplementation(testFixtures(project(":libraries:testing")))
+    testImplementation(testFixtures(projects.libraries.testing))
     testRuntimeOnly(libs.org.junit.platform.launcher)
 }
 
