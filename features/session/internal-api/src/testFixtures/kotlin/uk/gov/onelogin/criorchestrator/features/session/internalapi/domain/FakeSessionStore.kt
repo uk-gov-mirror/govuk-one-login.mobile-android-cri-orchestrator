@@ -10,7 +10,28 @@ class FakeSessionStore(
 
     override fun read(): StateFlow<Session?> = sessionFlow
 
-    override fun write(value: Session?) {
+    override fun write(value: Session) {
         sessionFlow.value = value
+    }
+
+    override fun clear() {
+        sessionFlow.value = null
+    }
+
+    override fun updateToAborted() {
+        sessionFlow.value?.let {
+            sessionFlow.value = it.copy(
+                aborted = true,
+                resumable = false,
+            )
+        }
+    }
+
+    override fun updateToNotResumable() {
+        sessionFlow.value?.let {
+            sessionFlow.value = it.copy(
+                resumable = false,
+            )
+        }
     }
 }

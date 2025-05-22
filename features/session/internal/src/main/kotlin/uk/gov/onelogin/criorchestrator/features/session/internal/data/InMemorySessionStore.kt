@@ -20,15 +20,38 @@ class InMemorySessionStore
         private val logger: Logger,
     ) : SessionStore,
         LogTagProvider {
-        private var activeSession: MutableStateFlow<Session?> = MutableStateFlow(null)
+        private var session: MutableStateFlow<Session?> = MutableStateFlow(null)
 
         override fun read(): StateFlow<Session?> {
-            logger.debug(tag, "Reading session ${activeSession.value} from session store")
-            return activeSession.asStateFlow()
+            logger.debug(tag, "Reading session ${session.value} from session store")
+            return session.asStateFlow()
         }
 
-        override fun write(value: Session?) {
+        override fun write(value: Session) {
             logger.debug(tag, "Writing $value to session store")
-            activeSession.value = value
+            session.value = value
+        }
+
+    override fun clear() {
+        logger.debug(tag, "Clearing the session store")
+    }
+
+    override fun updateToAborted() {
+        session.value?.let {
+            session.value = it.copy(
+                aborted = true,
+                resumable = false
+            )
+            logger.debug(tag, "Marking the session as aborted")
         }
     }
+
+    override fun updateToNotResumable() {
+        session.value?.let {
+            session.value = it.copy(
+                resumable = false
+            )
+            logger.debug(tag, "Marking the session as aborted")
+        }
+    }
+}

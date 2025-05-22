@@ -3,6 +3,7 @@ package uk.gov.onelogin.criorchestrator.features.resume.internal.root
 import android.annotation.SuppressLint
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -26,14 +27,18 @@ internal fun ProveYourIdentityRoot(
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.state.collectAsState()
+    val modalState = rememberProveYourIdentityModalState()
 
-    val modalState =
-        rememberProveYourIdentityModalState(
-            initiallyAllowedToShow = state.shouldDisplay,
-        )
+    LaunchedEffect(Unit) {
+        viewModel.actions.collect {
+            when (it) {
+                ProveYourIdentityRootUiAction.AllowModalToShow -> modalState.allowToShow()
+            }
+        }
+    }
 
     val onCardStartClick = {
-        viewModel.start()
+        viewModel.onStartClick()
         modalState.allowToShow()
     }
 
@@ -64,7 +69,7 @@ internal fun ProveYourIdentityRootContent(
     @SuppressLint("ComposableLambdaParameterNaming")
     modalContent: @Composable () -> Unit,
 ) {
-    if (state.shouldDisplay) {
+    if (state.showCard) {
         ProveYourIdentityUiCard(
             onStartClick = onCardStartClick,
             modifier =
@@ -92,15 +97,15 @@ internal class ProveYourIdentityRootContentPreviewParameterProvider : PreviewPar
     override val values =
         sequenceOf(
             PreviewParams(
-                state = ProveYourIdentityRootUiState(shouldDisplay = true),
+                state = ProveYourIdentityRootUiState(showCard = true),
                 modalState = ProveYourIdentityModalState(allowedToShow = true),
             ),
             PreviewParams(
-                state = ProveYourIdentityRootUiState(shouldDisplay = true),
+                state = ProveYourIdentityRootUiState(showCard = true),
                 modalState = ProveYourIdentityModalState(allowedToShow = false),
             ),
             PreviewParams(
-                state = ProveYourIdentityRootUiState(shouldDisplay = false),
+                state = ProveYourIdentityRootUiState(showCard = false),
                 modalState = ProveYourIdentityModalState(allowedToShow = false),
             ),
         )

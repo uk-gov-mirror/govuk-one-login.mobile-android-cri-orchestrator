@@ -9,8 +9,6 @@ import uk.gov.logging.api.Logger
 import uk.gov.onelogin.criorchestrator.features.session.internal.network.activesession.ActiveSessionApi
 import uk.gov.onelogin.criorchestrator.features.session.internal.network.activesession.ActiveSessionApiResponse
 import uk.gov.onelogin.criorchestrator.features.session.internalapi.domain.Session
-import uk.gov.onelogin.criorchestrator.features.session.internalapi.domain.SessionReader
-import uk.gov.onelogin.criorchestrator.features.session.internalapi.domain.SessionStore
 import uk.gov.onelogin.criorchestrator.libraries.di.CompositionScope
 import uk.gov.onelogin.criorchestrator.libraries.di.CriOrchestratorScope
 import javax.inject.Inject
@@ -22,7 +20,6 @@ import javax.inject.Provider
 class RemoteSessionReader
     @Inject
     constructor(
-        private val sessionStore: SessionStore,
         private val activeSessionApi: Provider<ActiveSessionApi>,
         private val logger: Logger,
     ) : SessionReader,
@@ -33,20 +30,33 @@ class RemoteSessionReader
             }
         }
 
-        override suspend fun isActiveSession(): Boolean {
+        override suspend fun isActiveSession(): SessionReader.Result {
             val response = activeSessionApi.get().getActiveSession()
             logResponse(response)
-            val session = parseSession(response)
-            sessionStore.write(session)
 
-            return session != null
+            return when(response) {
+                ApiResponse.Loading,
+                ApiResponse.Offline -> {
+                    // If we can't determine whether the session is active, keep the cached value.
+                    return SessionReader.Result.Unknown
+                }
+                is ApiResponse.Failure -> {
+                    when(response.status) {
+                        401, 404 -> SessionReader.Result.IsNotActive
+                        else -> SessionReader.Result.Unknown
+                    }
+                }
+                is ApiResponse.Success<*> -> {
+                    val session = parseSession(response)
+                    when(session) {
+                        null -> SessionReader.Result.Unknown
+                        else -> SessionReader.Result.IsActive(session)
+                    }
+                }
+            }
         }
 
-        private fun parseSession(response: ApiResponse): Session? {
-            if (response !is ApiResponse.Success<*>) {
-                return null
-            }
-
+        private fun parseSession(response: ApiResponse.Success<*>): Session? {
             return try {
                 val parsedResponse: ActiveSessionApiResponse.ActiveSessionSuccess =
                     json.decodeFromString(response.response.toString())

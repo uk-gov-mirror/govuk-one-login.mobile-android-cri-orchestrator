@@ -18,7 +18,7 @@ import org.mockito.kotlin.verify
 import uk.gov.android.network.api.ApiResponse
 import uk.gov.logging.testdouble.SystemLogger
 import uk.gov.onelogin.criorchestrator.features.session.internal.data.InMemorySessionStore
-import uk.gov.onelogin.criorchestrator.features.session.internalapi.domain.SessionReader
+import uk.gov.onelogin.criorchestrator.features.session.internal.SessionReader
 import java.util.stream.Stream
 import javax.inject.Provider
 
