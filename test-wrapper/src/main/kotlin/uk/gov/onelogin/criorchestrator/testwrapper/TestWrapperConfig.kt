@@ -20,8 +20,14 @@ object TestWrapperConfig {
                     Config.Entry(
                         key = SdkConfigKey.BypassIdCheckAsyncBackend,
                         Config.Value.BooleanValue(
-                            value = false,
+                            value = true,
                         ),
+                    ),
+                    Config.Entry(
+                        key = SdkConfigKey.BypassJourneyType,
+                        Config.Value.StringValue(
+                            value = SdkConfigKey.BypassJourneyType.OPTION_DESKTOP_APP_DESKTOP
+                        )
                     ),
                     Config.Entry(
                         key = SdkConfigKey.DebugAppReviewPrompts,
