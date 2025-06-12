@@ -43,12 +43,12 @@ fun MainContent(
         }
     }
 
-    // TODO: Remove this - it only helps reproduce the bug when manual testing
-    LifecycleEventEffect(
-        event = Lifecycle.Event.ON_START,
-    ) {
-        navController.navigate(NavDestination.Another)
-    }
+//    // TODO: Remove this - it only helps reproduce the bug when manual testing
+//    LifecycleEventEffect(
+//        event = Lifecycle.Event.ON_START,
+//    ) {
+//        navController.navigate(NavDestination.Another)
+//    }
 
 
     NavHost(

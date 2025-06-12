@@ -28,8 +28,6 @@ import androidx.navigation.compose.rememberNavController
  * * At route "c" the dialog is implemented using a regular
  *   [NavGraphBuilder.composable] route which contains a Dialog composable.
  *
- *
- *
  * TODO: This is just for handover and demo purposes.
  *   Remove after a fix is implemented.
  */
@@ -42,6 +40,7 @@ fun ReproDialogStateRestoration() {
     ) {
         composable("a") {
             Column {
+                Text("To enable this demo, uncomment the LifecycleEventEffect in MainContent")
                 Text("At route a - start")
                 ButtonTo("b", navController)
                 ButtonTo("c", navController)
