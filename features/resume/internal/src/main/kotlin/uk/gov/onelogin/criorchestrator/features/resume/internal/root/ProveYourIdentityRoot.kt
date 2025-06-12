@@ -1,6 +1,7 @@
 package uk.gov.onelogin.criorchestrator.features.resume.internal.root
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -11,6 +12,12 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
+import androidx.navigation.compose.rememberNavController
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
@@ -18,8 +25,6 @@ import uk.gov.android.ui.theme.m3.GdsTheme
 import uk.gov.onelogin.criorchestrator.features.resume.internal.card.ProveYourIdentityUiCard
 import uk.gov.onelogin.criorchestrator.features.resume.internal.modal.ProveYourIdentityModal
 import uk.gov.onelogin.criorchestrator.features.resume.internal.modal.ProveYourIdentityModalNavHost
-import uk.gov.onelogin.criorchestrator.features.resume.internal.modal.ProveYourIdentityModalState
-import uk.gov.onelogin.criorchestrator.features.resume.internal.modal.rememberProveYourIdentityModalState
 import uk.gov.onelogin.criorchestrator.features.resume.internalapi.nav.ProveYourIdentityNavGraphProvider
 
 @Composable
@@ -29,7 +34,14 @@ internal fun ProveYourIdentityRoot(
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.state.collectAsState()
-    val modalState = rememberProveYourIdentityModalState()
+    val navController = rememberNavController()
+
+    val navigateToModal = {
+        navController
+            .navigate(DESTINATION_MODAL) {
+                this.launchSingleTop = true
+            }
+    }
 
     LaunchedEffect(Unit) {
         launch {
@@ -39,7 +51,9 @@ internal fun ProveYourIdentityRoot(
                     viewModel.onScreenStart()
                 }.collect {
                     when (it) {
-                        ProveYourIdentityRootUiAction.AllowModalToShow -> modalState.allowToShow()
+                        ProveYourIdentityRootUiAction.AllowModalToShow -> {
+                            navigateToModal()
+                        }
                     }
                 }
         }
@@ -47,74 +61,83 @@ internal fun ProveYourIdentityRoot(
 
     val onCardStartClick = {
         viewModel.onStartClick()
-        modalState.allowToShow()
+        navigateToModal()
     }
 
-    ProveYourIdentityRootContent(
+    ProveYourIdentityRootNavHost(
         state = state,
+        navController = navController,
         onCardStartClick = onCardStartClick,
         onModalCancelClick = viewModel::onModalCancelClick,
-        modalState = modalState,
         modifier = modifier,
         modalContent = {
             ProveYourIdentityModalNavHost(
                 navGraphProviders = navGraphProviders,
-                onFinish = { modalState.onDismissRequest() },
+                onFinish = { navController.popBackStack() },
             )
         },
     )
 }
 
+private const val DESTINATION_CARD = "/card"
+private const val DESTINATION_MODAL = "/modal"
+
 @Suppress("LongParameterList")
 @Composable
-internal fun ProveYourIdentityRootContent(
+internal fun ProveYourIdentityRootNavHost(
     state: ProveYourIdentityRootUiState,
+    navController: NavHostController,
     onCardStartClick: () -> Unit,
-    modalState: ProveYourIdentityModalState,
     modifier: Modifier = Modifier,
     onModalCancelClick: () -> Unit = {},
     // Suppress naming rule for clarity
     @SuppressLint("ComposableLambdaParameterNaming")
     modalContent: @Composable () -> Unit,
 ) {
-    if (state.showCard) {
-        ProveYourIdentityUiCard(
-            onStartClick = onCardStartClick,
-            modifier =
-                modifier
-                    .testTag(ProveYourIdentityRootTestTags.CARD),
-        )
+    NavHost(
+        navController = navController,
+        startDestination = DESTINATION_CARD
+    ) {
+        composable(DESTINATION_CARD) {
+            if (state.showCard) {
+                ProveYourIdentityUiCard(
+                    onStartClick = onCardStartClick,
+                    modifier =
+                        modifier
+                            .testTag(ProveYourIdentityRootTestTags.CARD),
+                )
+            }
+        }
+
+        dialog(
+            DESTINATION_MODAL,
+            dialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+        ) {
+            ProveYourIdentityModal(
+                onCancelClick = onModalCancelClick,
+                onDismissRequest = { navController.popBackStack() },
+                modifier = Modifier.testTag(ProveYourIdentityRootTestTags.MODAL),
+            ) {
+                modalContent()
+            }
+        }
     }
 
-    ProveYourIdentityModal(
-        state = modalState,
-        onCancelClick = onModalCancelClick,
-        modifier = Modifier.testTag(ProveYourIdentityRootTestTags.MODAL),
-    ) {
-        modalContent()
-    }
 }
 
 internal data class PreviewParams(
     val state: ProveYourIdentityRootUiState,
-    val modalState: ProveYourIdentityModalState,
 )
 
 @Suppress("MaxLineLength") // Conflict between Ktlint formatting and Detekt rule
-internal class ProveYourIdentityRootContentPreviewParameterProvider : PreviewParameterProvider<PreviewParams> {
+internal class ProveYourIdentityRootNavHostPreviewParameterProvider : PreviewParameterProvider<PreviewParams> {
     override val values =
         sequenceOf(
             PreviewParams(
                 state = ProveYourIdentityRootUiState(showCard = true),
-                modalState = ProveYourIdentityModalState(allowedToShow = true),
-            ),
-            PreviewParams(
-                state = ProveYourIdentityRootUiState(showCard = true),
-                modalState = ProveYourIdentityModalState(allowedToShow = false),
             ),
             PreviewParams(
                 state = ProveYourIdentityRootUiState(showCard = false),
-                modalState = ProveYourIdentityModalState(allowedToShow = false),
             ),
         )
 }
@@ -122,14 +145,14 @@ internal class ProveYourIdentityRootContentPreviewParameterProvider : PreviewPar
 @Composable
 @PreviewLightDark
 internal fun ProveYourIdentityRootContentPreview(
-    @PreviewParameter(ProveYourIdentityRootContentPreviewParameterProvider::class)
+    @PreviewParameter(ProveYourIdentityRootNavHostPreviewParameterProvider::class)
     parameters: PreviewParams,
 ) {
     GdsTheme {
-        ProveYourIdentityRootContent(
+        ProveYourIdentityRootNavHost(
             state = parameters.state,
             onCardStartClick = {},
-            modalState = parameters.modalState,
+            navController = rememberNavController(),
             modalContent = {
                 Text("Prove your identity modal is open")
             },
