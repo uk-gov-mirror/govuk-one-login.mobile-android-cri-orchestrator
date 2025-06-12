@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -41,6 +43,14 @@ fun MainContent(
         }
     }
 
+    // TODO: Remove this - it only helps reproduce the bug when manual testing
+    LifecycleEventEffect(
+        event = Lifecycle.Event.ON_START,
+    ) {
+        navController.navigate(NavDestination.Another)
+    }
+
+
     NavHost(
         modifier = modifier,
         navController = navController,
@@ -50,8 +60,12 @@ fun MainContent(
             SetupScreen(
                 onSubUpdateRequest = onSubUpdateRequest,
                 onStartClick = { navController.navigate(NavDestination.Home) },
+                onStartReproClick = { navController.navigate(NavDestination.ReproDialogStateRestorationBug) },
                 criOrchestratorComponent = criOrchestratorComponent,
             )
+        }
+        composable<NavDestination.ReproDialogStateRestorationBug> {
+            ReproDialogStateRestoration()
         }
         composable<NavDestination.Home> {
             HomeScreen(
@@ -75,6 +89,10 @@ private sealed class NavDestination {
 
     @Serializable
     object Home
+
+    // TODO: This is just for handover - remove after fix is implemented
+    @Serializable
+    object ReproDialogStateRestorationBug
 
     @Serializable
     object Another

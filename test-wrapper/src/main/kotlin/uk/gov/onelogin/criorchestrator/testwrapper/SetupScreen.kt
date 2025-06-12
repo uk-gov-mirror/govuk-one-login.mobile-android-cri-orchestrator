@@ -26,6 +26,7 @@ import uk.gov.onelogin.criorchestrator.testwrapper.devmenu.DevMenuFloatingAction
 fun SetupScreen(
     onSubUpdateRequest: (String?) -> Unit,
     onStartClick: () -> Unit,
+    onStartReproClick: () -> Unit,
     criOrchestratorComponent: CriOrchestratorComponent,
     modifier: Modifier = Modifier,
 ) {
@@ -68,6 +69,12 @@ fun SetupScreen(
                 onClick = onStartClick,
             ) {
                 Text(text = "Start")
+            }
+
+            Button(
+                onClick = onStartReproClick,
+            ) {
+                Text(text = "Start dialog state restoration repro")
             }
         }
 
