@@ -47,10 +47,6 @@ updates:
       govuk:
         patterns:
           - "uk.gov*"
-      gradle:
-        update-types:
-          - "minor"
-          - "patch"
   - package-ecosystem: "gitsubmodule"
     directory: "/"
     schedule:
