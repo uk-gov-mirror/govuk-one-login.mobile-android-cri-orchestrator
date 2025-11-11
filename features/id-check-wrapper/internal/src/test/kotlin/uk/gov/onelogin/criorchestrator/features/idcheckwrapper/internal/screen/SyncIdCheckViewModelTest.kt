@@ -62,15 +62,7 @@ class SyncIdCheckViewModelTest {
     private val sessionStore by lazy {
         FakeSessionStore(session)
     }
-    private val configStore: ConfigStore =
-        FakeConfigStore(
-            initialConfig =
-                Config.createTestInstance(
-                    enableManualLauncher = false,
-                    bypassIdCheckAsyncBackend = false,
-                    experimentalComposeNavigation = false,
-                ),
-        )
+    private val configStore: ConfigStore = FakeConfigStore()
     private val idCheckSdkActiveStateStore = InMemoryIdCheckSdkActiveStateStore(logger)
     private val launcherData by lazy {
         LauncherData.createTestInstance(
@@ -107,15 +99,7 @@ class SyncIdCheckViewModelTest {
                                 biometricToken,
                             ),
                         ),
-                    configStore =
-                        FakeConfigStore(
-                            initialConfig =
-                                Config.createTestInstance(
-                                    enableManualLauncher = enableManualLauncher,
-                                    bypassIdCheckAsyncBackend = bypassIdCheckAsyncBackend,
-                                    experimentalComposeNavigation = false,
-                                ),
-                        ),
+                    configStore = FakeConfigStore(),
                 ),
             analytics = analytics,
             sessionStore = sessionStore,
@@ -477,13 +461,7 @@ class SyncIdCheckViewModelTest {
     @Test
     fun `sdk launcher is not triggered when screen start executed again`() =
         runTest {
-            val initialConfig =
-                Config.createTestInstance(
-                    enableManualLauncher = enableManualLauncher,
-                    bypassIdCheckAsyncBackend = bypassIdCheckAsyncBackend,
-                    experimentalComposeNavigation = false,
-                )
-            val configStore = FakeConfigStore(initialConfig = initialConfig)
+            val configStore = FakeConfigStore()
             val viewModel = viewModel(configStore = configStore)
 
             viewModel.onScreenStart(documentVariety = documentVariety)
